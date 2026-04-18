@@ -1,0 +1,413 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+.app{font-family:'DM Mono',monospace;background:#0a0c12;color:#c9c5b8;border-radius:12px;overflow:hidden;}
+.header{background:#0d1018;border-bottom:1px solid #1e2535;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;}
+.h-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#e8c97a;letter-spacing:.02em;}
+.h-sub{font-size:9px;color:#5a6070;margin-top:2px;letter-spacing:.08em;text-transform:uppercase;}
+.badge{font-size:9px;background:#1a2235;color:#4a8fc9;border:1px solid #1e3050;padding:3px 8px;border-radius:20px;letter-spacing:.06em;}
+.tabs{display:flex;background:#0d1018;border-bottom:1px solid #1e2535;padding:0 20px;gap:4px;}
+.tab{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#5a6070;padding:10px 14px;cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+.tab.active{color:#e8c97a;border-bottom-color:#e8c97a;}
+.tab:hover:not(.active){color:#9aacbd;}
+.panel{display:none;padding:18px 20px;}
+.panel.active{display:block;}
+.map-wrap{background:#080a10;border:1px solid #1e2535;border-radius:8px;overflow:hidden;margin-bottom:10px;position:relative;}
+.map-hint{font-size:9px;color:#5a6070;letter-spacing:.05em;margin-bottom:8px;}
+.map-hover{font-size:11px;color:#9aacbd;min-height:16px;margin-top:6px;}
+.map-legend{position:absolute;bottom:8px;right:8px;background:rgba(10,12,18,.9);border:1px solid #1e2535;border-radius:6px;padding:7px 10px;font-size:9px;}
+.leg-lbl{color:#5a6070;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;}
+.leg-bar{width:80px;height:5px;border-radius:3px;background:linear-gradient(to right,#0b1a2e,#1a3a6e,#2d6aa0,#5aa0d0,#ffe88a,#ff9a3c,#ff5a2e,#cc2222);}
+.leg-ends{display:flex;justify-content:space-between;font-size:8px;color:#5a6070;margin-top:2px;}
+.map-spots{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+.map-spot-pill{font-size:9px;padding:3px 9px;border-radius:20px;border:1px solid #1e3535;background:#0d1a1a;color:#5abcbc;cursor:pointer;letter-spacing:.04em;transition:all .2s;}
+.map-spot-pill:hover{border-color:#5abcbc;color:#8adada;}
+.map-spot-pill.active{background:#1a3535;border-color:#5abcbc;color:#8adada;}
+.country-banner{background:#0d1a18;border:1px solid #1a3530;border-radius:6px;padding:10px 14px;margin-bottom:10px;display:none;}
+.country-banner.visible{display:flex;align-items:center;justify-content:space-between;}
+.cb-name{font-family:'Cormorant Garamond',serif;font-size:15px;color:#7adac8;}
+.cb-meta{font-size:9px;color:#3a7060;letter-spacing:.05em;margin-top:2px;}
+.cb-clear{font-size:9px;color:#3a5550;cursor:pointer;padding:2px 7px;border:1px solid #1e3530;border-radius:4px;background:transparent;}
+.cb-clear:hover{color:#7adac8;}
+.search-row{display:flex;gap:8px;margin-bottom:10px;}
+.search-input{flex:1;background:#0d1018;border:1px solid #1e2535;border-radius:6px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:12px;color:#c9c5b8;outline:none;}
+.search-input:focus{border-color:#e8c97a55;}
+.search-input::placeholder{color:#3a4555;}
+.clear-btn{background:#1a2530;border:1px solid #2a3a50;border-radius:6px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:10px;color:#7aacce;cursor:pointer;}
+.clear-btn:hover{background:#1e2e40;}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
+.tag{font-size:9px;letter-spacing:.05em;padding:4px 10px;border-radius:20px;border:1px solid #1e2535;background:transparent;color:#5a6070;cursor:pointer;font-family:'DM Mono',monospace;}
+.tag:hover{border-color:#e8c97a44;color:#9aacbd;}
+.tag.active{background:#1a2a1a;border-color:#3a6a3a;color:#7acc7a;}
+.results-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:10px;}
+.r-card{background:#0d1018;border:1px solid #1e2535;border-radius:8px;padding:12px;cursor:pointer;transition:border-color .2s;}
+.r-card:hover{border-color:#e8c97a44;}
+.r-card.selected{border-color:#e8c97a;background:#0f1218;}
+.r-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:#e8d5a0;margin-bottom:2px;}
+.r-loc{font-size:9px;color:#5a6070;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+.r-meta{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{font-size:9px;padding:2px 7px;border-radius:10px;letter-spacing:.04em;}
+.pill-b{background:#0b2240;color:#4a8fd0;border:1px solid #1a3a60;}
+.pill-m{background:#1a1a0b;color:#c9a030;border:1px solid #3a3010;}
+.pill-h{background:#1a0b1a;color:#c060c0;border:1px solid #3a1a3a;}
+.r-note{font-size:9px;color:#5a6070;margin-top:6px;line-height:1.5;}
+.no-res{font-size:11px;color:#3a4555;padding:20px 0;text-align:center;display:none;}
+.detail{padding:16px 20px;border-top:1px solid #1e2535;display:none;}
+.detail.visible{display:block;}
+.dh{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;}
+.d-name{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;color:#e8c97a;}
+.d-loc{font-size:9px;color:#5a6070;letter-spacing:.08em;text-transform:uppercase;margin-top:2px;}
+.close-btn{font-size:10px;color:#5a6070;cursor:pointer;padding:3px 8px;border:1px solid #1e2535;border-radius:4px;background:transparent;}
+.close-btn:hover{color:#c9c5b8;border-color:#3a4555;}
+.d-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.ds{background:#0d1018;border:1px solid #1e2535;border-radius:6px;padding:8px 10px;text-align:center;}
+.ds-val{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:#e8c97a;}
+.ds-lbl{font-size:9px;color:#5a6070;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+.m-title{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#5a6070;margin-bottom:8px;}
+.m-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:3px;margin-bottom:6px;}
+.mc{border-radius:4px;padding:5px 2px;text-align:center;}
+.mn{font-size:8px;letter-spacing:.03em;margin-bottom:2px;}
+.ms{font-size:10px;font-weight:500;}
+.mb{height:3px;border-radius:2px;margin-top:3px;}
+.leg-row{display:flex;gap:12px;margin-bottom:12px;}
+.li{display:flex;align-items:center;gap:5px;font-size:9px;color:#5a6070;}
+.ld{width:8px;height:8px;border-radius:2px;}
+.chart-wrap{background:#0d1018;border:1px solid #1e2535;border-radius:8px;padding:14px;}
+.ct{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#5a6070;margin-bottom:10px;}
+.src{font-size:9px;color:#3a4550;text-align:right;margin-top:8px;letter-spacing:.04em;}
+</style>
+
+<h2 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);">Integrated dark sky explorer with world map, location search, and monthly visibility</h2>
+
+<div class="app">
+  <div class="header">
+    <div>
+      <div class="h-title">Dark Sky Observatory</div>
+      <div class="h-sub">Click map to filter · Search · Explore seasons</div>
+    </div>
+    <div class="badge">VIIRS · IDA · Bortle</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('map',this)">World map</button>
+    <button class="tab" onclick="switchTab('search',this)">Location search</button>
+  </div>
+
+  <div id="tab-map" class="panel active">
+    <div class="map-hint">Click any country to filter dark sky spots in that region</div>
+    <div class="map-wrap">
+      <svg id="world-map" viewBox="0 0 900 440" width="100%" style="display:block;"></svg>
+      <div class="map-legend">
+        <div class="leg-lbl">Light pollution</div>
+        <div class="leg-bar"></div>
+        <div class="leg-ends"><span>Pristine</span><span>Severe</span></div>
+      </div>
+    </div>
+    <div class="map-hover" id="map-hover"></div>
+    <div class="country-banner" id="country-banner">
+      <div>
+        <div class="cb-name" id="cb-name"></div>
+        <div class="cb-meta" id="cb-meta"></div>
+      </div>
+      <button class="cb-clear" onclick="clearMapFilter()">Clear filter</button>
+    </div>
+    <div id="map-spots-wrap" style="display:none;">
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:#5a6070;margin-bottom:8px;">Dark sky spots in region</div>
+      <div class="map-spots" id="map-spots"></div>
+    </div>
+    <div class="src">Source: NASA VIIRS night-time lights · IDA dark sky places</div>
+  </div>
+
+  <div id="tab-search" class="panel">
+    <div class="search-row">
+      <input class="search-input" id="search-input" type="text" placeholder="Search by name, country, or region..." oninput="doSearch()">
+      <button class="clear-btn" onclick="clearAll()">Clear</button>
+    </div>
+    <div class="tags">
+      <button class="tag" onclick="filterTag('Class 1-2',this)">Class 1–2 only</button>
+      <button class="tag" onclick="filterTag('Northern',this)">Northern hemisphere</button>
+      <button class="tag" onclick="filterTag('Southern',this)">Southern hemisphere</button>
+      <button class="tag" onclick="filterTag('IDA',this)">IDA certified</button>
+      <button class="tag" onclick="filterTag('High altitude',this)">High altitude</button>
+      <button class="tag" onclick="filterTag('Coastal',this)">Coastal</button>
+    </div>
+    <div class="results-grid" id="results-grid"></div>
+    <div class="no-res" id="no-res">No locations match — try a different search or filter.</div>
+    <div class="src" style="margin-top:12px;">Source: IDA dark sky places programme · Bortle scale</div>
+  </div>
+
+  <div class="detail" id="detail">
+    <div class="dh">
+      <div>
+        <div class="d-name" id="d-name"></div>
+        <div class="d-loc" id="d-loc"></div>
+      </div>
+      <button class="close-btn" onclick="closeDetail()">close</button>
+    </div>
+    <div class="d-stats">
+      <div class="ds"><div class="ds-val" id="d-bortle"></div><div class="ds-lbl">Bortle class</div></div>
+      <div class="ds"><div class="ds-val" id="d-elev"></div><div class="ds-lbl">Elevation</div></div>
+      <div class="ds"><div class="ds-val" id="d-best"></div><div class="ds-lbl">Peak months</div></div>
+    </div>
+    <div class="m-title">Monthly visibility score (0–10)</div>
+    <div class="m-grid" id="m-grid"></div>
+    <div class="leg-row">
+      <div class="li"><div class="ld" style="background:#1d6a30"></div>Excellent</div>
+      <div class="li"><div class="ld" style="background:#7a8a2a"></div>Good</div>
+      <div class="li"><div class="ld" style="background:#8a5a1a"></div>Fair</div>
+      <div class="li"><div class="ld" style="background:#2a2535"></div>Poor</div>
+    </div>
+    <div class="chart-wrap">
+      <div class="ct">Visibility by month — <span id="chart-spot-name"></span></div>
+      <div style="position:relative;width:100%;height:150px;">
+        <canvas id="month-chart" role="img" aria-label="Monthly stargazing visibility bar chart for selected location"></canvas>
+      </div>
+    </div>
+    <div class="src" style="margin-top:10px;">Score factors: cloud cover · rain season · moon cycles · Milky Way position · atmospheric seeing</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+const spots = [
+  {name:'NamibRand Reserve',loc:'Namibia, Africa',country:'Namibia',iso:'516',bortle:1,elev:'1200m',hem:'Southern',tags:['Class 1-2','Southern','IDA','High altitude'],scores:[6,7,8,8,7,6,7,8,9,10,9,8],note:'World\'s first IDA Gold Tier dark sky reserve.',best:'Sep–Oct'},
+  {name:'Cherry Springs SP',loc:'Pennsylvania, USA',country:'United States',iso:'840',bortle:2,elev:'670m',hem:'Northern',tags:['Class 1-2','Northern','IDA'],scores:[5,6,7,8,9,10,9,9,8,7,5,4],note:'IDA Gold Tier. Milky Way core visible Jun–Sep.',best:'Jun–Aug'},
+  {name:'Aoraki Mackenzie',loc:'New Zealand',country:'New Zealand',iso:'554',bortle:2,elev:'760m',hem:'Southern',tags:['Class 1-2','Southern','IDA'],scores:[8,7,6,7,8,9,10,9,8,7,6,7],note:'Largest dark sky reserve in southern hemisphere.',best:'Jun–Aug'},
+  {name:'Atacama Desert',loc:'Chile, South America',country:'Chile',iso:'152',bortle:1,elev:'2400m',hem:'Southern',tags:['Class 1-2','Southern','High altitude'],scores:[9,9,8,8,8,9,10,10,9,9,9,9],note:'Home to ESO observatories. Exceptional year-round clarity.',best:'Jul–Aug'},
+  {name:'Big Bend NP',loc:'Texas, USA',country:'United States',iso:'840',bortle:2,elev:'1100m',hem:'Northern',tags:['Class 1-2','Northern','IDA','High altitude'],scores:[7,8,9,9,8,8,7,7,8,9,8,7],note:'Least light pollution of any US national park.',best:'Mar–Apr'},
+  {name:'Exmoor NP',loc:'Somerset, UK',country:'United Kingdom',iso:'826',bortle:3,elev:'400m',hem:'Northern',tags:['Northern','IDA'],scores:[5,6,7,8,8,8,7,8,8,7,5,4],note:'First dark sky reserve in Europe.',best:'Jul–Sep'},
+  {name:'Westhavelland',loc:'Brandenburg, Germany',country:'Germany',iso:'276',bortle:3,elev:'60m',hem:'Northern',tags:['Northern','IDA'],scores:[6,7,8,9,9,9,8,8,8,7,6,5],note:'Largest dark sky park in Germany.',best:'Apr–Jun'},
+  {name:'Wadi Rum',loc:'Jordan, Middle East',country:'Jordan',iso:'400',bortle:2,elev:'900m',hem:'Northern',tags:['Class 1-2','Northern','High altitude'],scores:[8,8,9,9,8,7,8,8,9,9,8,8],note:'UNESCO site with exceptional horizons and minimal nearby light.',best:'Mar–May'},
+  {name:'Mauna Kea Summit',loc:'Hawaii, USA',country:'United States',iso:'840',bortle:1,elev:'4200m',hem:'Northern',tags:['Class 1-2','Northern','High altitude','Coastal'],scores:[8,8,8,8,9,9,10,10,9,9,8,8],note:'World-class seeing used by professional observatories.',best:'Jul–Aug'},
+  {name:'Galloway Forest',loc:'Scotland, UK',country:'United Kingdom',iso:'826',bortle:2,elev:'300m',hem:'Northern',tags:['Class 1-2','Northern','IDA'],scores:[6,7,8,9,9,9,8,8,8,7,6,5],note:'UK\'s first dark sky park with wide open moorland.',best:'Apr–May'},
+  {name:'Lake Tekapo',loc:'Canterbury, New Zealand',country:'New Zealand',iso:'554',bortle:2,elev:'710m',hem:'Southern',tags:['Class 1-2','Southern','IDA'],scores:[8,7,6,7,9,10,10,9,8,7,6,7],note:'Village adapted for dark sky tourism. Winter is peak.',best:'Jun–Jul'},
+  {name:'Canary Islands',loc:'Spain (Atlantic)',country:'Spain',iso:'724',bortle:2,elev:'2000m',hem:'Northern',tags:['Class 1-2','Northern','Coastal','High altitude'],scores:[8,8,9,9,9,10,10,9,8,8,7,7],note:'Home to Roque de los Muchachos observatory.',best:'Jun–Jul'},
+  {name:'Kruger Dark Zone',loc:'South Africa',country:'South Africa',iso:'710',bortle:2,elev:'250m',hem:'Southern',tags:['Class 1-2','Southern'],scores:[6,7,8,8,7,7,8,9,9,10,9,7],note:'Combines safari and stargazing. Milky Way centre rises Sep–Nov.',best:'Sep–Oct'},
+  {name:'Jasper NP',loc:'Alberta, Canada',country:'Canada',iso:'124',bortle:2,elev:'1060m',hem:'Northern',tags:['Class 1-2','Northern','IDA'],scores:[3,4,6,7,9,10,10,9,8,6,4,3],note:'World\'s largest dark sky preserve by area.',best:'Jun–Aug'},
+  {name:'Tibetan Plateau',loc:'Qinghai, China',country:'China',iso:'156',bortle:2,elev:'3500m',hem:'Northern',tags:['Class 1-2','Northern','High altitude'],scores:[5,6,7,8,9,10,9,9,8,8,6,5],note:'Extreme altitude yields near-observatory conditions.',best:'May–Jun'},
+];
+
+const lightData = {
+  "004":8,"008":6,"012":3,"024":4,"036":7,"040":6,"050":8,"056":9,
+  "076":6,"100":7,"124":5,"152":3,"156":9,"170":4,"191":8,"192":6,
+  "203":7,"208":7,"218":3,"818":7,"231":2,"246":5,"250":7,"276":8,
+  "288":3,"300":8,"348":7,"356":8,"360":7,"364":7,"372":7,"376":9,
+  "380":8,"392":9,"400":8,"404":3,"410":9,"484":7,"504":6,"516":2,
+  "528":8,"554":4,"566":5,"578":5,"586":7,"604":4,"616":7,"630":7,
+  "643":5,"682":8,"686":2,"710":4,"724":7,"752":5,"756":7,"764":7,
+  "792":7,"800":2,"804":7,"826":8,"840":8,"858":5,"862":5,"704":7,"032":5
+};
+
+const countryNames = {
+  "840":"United States","124":"Canada","826":"United Kingdom","276":"Germany",
+  "250":"France","724":"Spain","380":"Italy","392":"Japan","156":"China",
+  "356":"India","036":"Australia","554":"New Zealand","710":"South Africa",
+  "516":"Namibia","152":"Chile","076":"Brazil","032":"Argentina","400":"Jordan",
+  "404":"Kenya","800":"Uganda","231":"Ethiopia","686":"Senegal","288":"Ghana"
+};
+
+const colorScale = d3.scaleQuantize([1,10],[
+  '#0b2a4e','#0f3a6e','#1a5490','#2d7ab5','#50a0d0',
+  '#98c8e0','#fde88a','#f5a040','#e85a28','#c01818'
+]);
+
+let activeTag = null, selectedSpot = null, monthChart = null, activeCountryISO = null;
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+function scoreColor(s) {
+  if (s >= 9) return '#1d6a30';
+  if (s >= 7) return '#3a7a20';
+  if (s >= 5) return '#7a8a2a';
+  if (s >= 3) return '#8a5a1a';
+  return '#2a2535';
+}
+function scoreText(s) {
+  if (s >= 9) return '#5ad87a';
+  if (s >= 7) return '#aad050';
+  if (s >= 5) return '#d4c050';
+  if (s >= 3) return '#c08040';
+  return '#5a6070';
+}
+
+d3.json('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json').then(world => {
+  const svg = d3.select('#world-map');
+  const proj = d3.geoNaturalEarth1().scale(143).translate([450, 225]);
+  const path = d3.geoPath(proj);
+  const features = topojson.feature(world, world.objects.countries).features;
+
+  svg.append('rect').attr('width',900).attr('height',440).attr('fill','#080a10');
+
+  svg.selectAll('path').data(features).join('path')
+    .attr('d', path)
+    .attr('stroke','#1a2030')
+    .attr('stroke-width',0.4)
+    .attr('fill', d => {
+      const id = String(d.id).padStart(3,'0');
+      const v = lightData[id];
+      return v ? colorScale(v) : '#111825';
+    })
+    .attr('class','country-path')
+    .style('cursor','pointer')
+    .on('mouseover', function(event, d) {
+      const id = String(d.id).padStart(3,'0');
+      const name = countryNames[id];
+      const v = lightData[id];
+      const bmap = ['','Class 1-2 (Pristine)','Class 2-3 (Rural)','Class 3-4 (Rural/Sub)','Class 4-5 (Transition)','Class 5 (Sub-urban)','Class 6 (Bright sub)','Class 7 (Suburban)','Class 8 (Urban)','Class 8-9 (Bright urban)','Class 9 (Inner city)'];
+      const spotsHere = spots.filter(s => s.iso === id);
+      let txt = name ? name : 'Unknown';
+      if (v) txt += ' — ' + bmap[v];
+      if (spotsHere.length) txt += ` · ${spotsHere.length} dark sky spot${spotsHere.length>1?'s':''}`;
+      document.getElementById('map-hover').textContent = txt;
+      if (id !== activeCountryISO) d3.select(this).attr('stroke','#e8c97a77').attr('stroke-width',1);
+    })
+    .on('mouseout', function(event, d) {
+      const id = String(d.id).padStart(3,'0');
+      document.getElementById('map-hover').textContent = '';
+      if (id !== activeCountryISO) d3.select(this).attr('stroke','#1a2030').attr('stroke-width',0.4);
+    })
+    .on('click', function(event, d) {
+      const id = String(d.id).padStart(3,'0');
+      const name = countryNames[id] || 'this region';
+      const spotsHere = spots.filter(s => s.iso === id);
+      if (activeCountryISO === id) { clearMapFilter(); return; }
+      svg.selectAll('.country-path').attr('stroke','#1a2030').attr('stroke-width',0.4);
+      d3.select(this).attr('stroke','#e8c97a').attr('stroke-width',1.5);
+      activeCountryISO = id;
+      const v = lightData[id];
+      const bmap = ['','Pristine','Rural dark','Rural/suburban','Transition','Suburban','Bright suburban','Suburban','Urban','Bright urban','Inner city'];
+      document.getElementById('cb-name').textContent = name;
+      document.getElementById('cb-meta').textContent = v ? `Light pollution: ${bmap[v]} · ${spotsHere.length} spot${spotsHere.length!==1?'s':''} found` : `${spotsHere.length} spot${spotsHere.length!==1?'s':''} found`;
+      document.getElementById('country-banner').classList.add('visible');
+      const sw = document.getElementById('map-spots-wrap');
+      const sp = document.getElementById('map-spots');
+      sp.innerHTML = '';
+      if (spotsHere.length) {
+        sw.style.display = 'block';
+        spotsHere.forEach(s => {
+          const btn = document.createElement('button');
+          btn.className = 'map-spot-pill';
+          btn.textContent = s.name + ' (Class ' + s.bortle + ')';
+          btn.onclick = () => {
+            document.querySelectorAll('.map-spot-pill').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            openDetail(s);
+          };
+          sp.appendChild(btn);
+        });
+      } else {
+        sw.style.display = 'block';
+        sp.innerHTML = '<span style="font-size:10px;color:#3a4555;">No indexed dark sky spots for this country yet.</span>';
+      }
+    });
+}).catch(() => {
+  document.getElementById('world-map').innerHTML = '<text x="450" y="220" text-anchor="middle" fill="#5a6070" font-size="13" font-family="monospace">Map unavailable</text>';
+});
+
+function clearMapFilter() {
+  activeCountryISO = null;
+  d3.selectAll('.country-path').attr('stroke','#1a2030').attr('stroke-width',0.4);
+  document.getElementById('country-banner').classList.remove('visible');
+  document.getElementById('map-spots-wrap').style.display = 'none';
+  document.getElementById('map-spots').innerHTML = '';
+  closeDetail();
+}
+
+function filterTag(tag, btn) {
+  if (activeTag === tag) { activeTag = null; btn.classList.remove('active'); }
+  else { document.querySelectorAll('.tag').forEach(t => t.classList.remove('active')); activeTag = tag; btn.classList.add('active'); }
+  doSearch();
+}
+
+function doSearch() {
+  const q = document.getElementById('search-input').value.toLowerCase().trim();
+  const filtered = spots.filter(s => {
+    const mq = !q || s.name.toLowerCase().includes(q) || s.loc.toLowerCase().includes(q) || s.country.toLowerCase().includes(q);
+    const mt = !activeTag || s.tags.includes(activeTag);
+    return mq && mt;
+  });
+  renderResults(filtered);
+}
+
+function clearAll() {
+  document.getElementById('search-input').value = '';
+  activeTag = null;
+  document.querySelectorAll('.tag').forEach(t => t.classList.remove('active'));
+  doSearch();
+}
+
+function renderResults(list) {
+  const grid = document.getElementById('results-grid');
+  const none = document.getElementById('no-res');
+  grid.innerHTML = '';
+  none.style.display = list.length ? 'none' : 'block';
+  list.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'r-card' + (selectedSpot && selectedSpot.name === s.name ? ' selected' : '');
+    div.innerHTML = `<div class="r-name">${s.name}</div><div class="r-loc">${s.loc}</div><div class="r-meta"><span class="pill pill-b">Class ${s.bortle}</span><span class="pill pill-m">${s.best}</span><span class="pill pill-h">${s.hem.slice(0,1)}H</span></div><div class="r-note">${s.note}</div>`;
+    div.onclick = () => { document.querySelectorAll('.r-card').forEach(c => c.classList.remove('selected')); div.classList.add('selected'); openDetail(s); };
+    grid.appendChild(div);
+  });
+}
+
+function openDetail(s) {
+  selectedSpot = s;
+  document.getElementById('d-name').textContent = s.name;
+  document.getElementById('d-loc').textContent = s.loc;
+  document.getElementById('d-bortle').textContent = s.bortle;
+  document.getElementById('d-elev').textContent = s.elev;
+  document.getElementById('d-best').textContent = s.best;
+  document.getElementById('chart-spot-name').textContent = s.name;
+  const mg = document.getElementById('m-grid');
+  mg.innerHTML = '';
+  s.scores.forEach((sc, i) => {
+    const c = document.createElement('div');
+    c.className = 'mc';
+    c.style.background = scoreColor(sc) + '55';
+    c.style.border = '1px solid ' + scoreColor(sc);
+    c.innerHTML = `<div class="mn" style="color:#5a6070">${MONTHS[i]}</div><div class="ms" style="color:${scoreText(sc)}">${sc}</div><div class="mb" style="background:${scoreColor(sc)};width:${Math.round(sc*10)}%"></div>`;
+    mg.appendChild(c);
+  });
+  buildMonthChart(s);
+  const detail = document.getElementById('detail');
+  detail.classList.add('visible');
+  detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeDetail() {
+  document.getElementById('detail').classList.remove('visible');
+  document.querySelectorAll('.r-card,.map-spot-pill').forEach(c => c.classList.remove('selected','active'));
+  selectedSpot = null;
+}
+
+function buildMonthChart(s) {
+  if (monthChart) monthChart.destroy();
+  monthChart = new Chart(document.getElementById('month-chart'), {
+    type:'bar',
+    data:{
+      labels:MONTHS,
+      datasets:[{label:'Visibility',data:s.scores,backgroundColor:s.scores.map(v=>scoreColor(v)+'cc'),borderColor:s.scores.map(v=>scoreColor(v)),borderWidth:1,borderRadius:3}]
+    },
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'Score: '+ctx.raw+'/10'}}},
+      scales:{
+        x:{ticks:{color:'#5a6070',font:{family:'DM Mono',size:9},autoSkip:false,maxRotation:0},grid:{color:'#1a2030'},border:{color:'#1e2535'}},
+        y:{min:0,max:10,ticks:{color:'#5a6070',font:{family:'DM Mono',size:9},stepSize:2},grid:{color:'#1a2030'},border:{color:'#1e2535'}}
+      }
+    }
+  });
+}
+
+doSearch();
+</script>
